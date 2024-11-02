@@ -89,59 +89,49 @@ app.post('/naruci', (req, res) => {
 
 // Vježba 1 i 2 - Naručivanje više pizze, Vježba 2 - Zanima nas i adresa dostave
 
-let narudzbe = [];
+let sve_narudzbe = [];
 
-// POST rutu za naručivanje
-app.post('/naruci', (req, res) => {
-    const narudzbeInput = req.body; // podaci o narudžbama
-    const lista = [];
-    let ukupnaCijena = 0; // Definiraj ukupnaCijena
+app.post('/naruci1', (req, res) => {
+    const narudzbe = req.body.narudzba;
+    const detaljna_narudzba = req.body;
 
-    // Provjeravaj da li je narudzba niz
-    if (!Array.isArray(narudzbeInput.narudzba)) {
+    if (!Array.isArray(narudzbe)) {
         return res.status(400).send('Neispravan format podataka. Očekuje se niz objekata.');
-    }
+    };
+    
+    let keys;
 
-    // Provjera podataka o korisniku
-    if (!narudzbeInput.prezime || !narudzbeInput.adresa || !narudzbeInput.broj_telefona) {
+    if (!detaljna_narudzba.prezime || !detaljna_narudzba.adresa || !detaljna_narudzba.broj_telefona) {
         return res.status(400).send('Niste poslali sve potrebne podatke o korisniku!');
     }
 
-    for (let narudzba of narudzbeInput.narudzba) { // Promeni narudzbeInput na narudzbeInput.narudzba
-        const kljucevi = Object.keys(narudzba);
+    let cijena_ukupno = 0;
 
-        // Provjeri sve potrebne ključeve
-        if (!(kljucevi.includes('pizza') && kljucevi.includes('velicina') && kljucevi.includes('kolicina'))) {
+    for (let element of narudzbe) {
+        const keys = Object.keys(element);
+
+        if (!(keys.includes('pizza') && keys.includes('velicina') && keys.includes('kolicina'))) {
             return res.status(400).send('Niste poslali sve potrebne podatke za narudžbu!');
         }
 
-        // Provjeri da li pizza postoji
-        const postoji = pizze.find(p => p.naziv === narudzba.pizza);
-        if (!postoji) {
-            return res.status(400).send(`Pizza "${narudzba.pizza}" ne postoji na jelovniku.`);
+        const pizza_found = pizze.find(x => x.naziv === element.pizza);
+        if (!pizza_found) {
+            return res.status(400).send('Pizza ne postoji na našem jelovniku.');
         }
 
-        // Izračunaj ukupnu cijenu
-        ukupnaCijena += postoji.cijena * narudzba.kolicina;
-        lista.push(`${narudzba.kolicina} x ${narudzba.pizza} (${narudzba.velicina})`);
+        cijena_ukupno += pizza_found.cijena * element.kolicina;
     }
 
-    // Spremi narudžbu u in-memory varijablu
-    narudzbe.push({ 
-        narudzba: lista, 
-        ukupnaCijena,
-        prezime: narudzbeInput.prezime,
-        adresa: narudzbeInput.adresa,
-        broj_telefona: narudzbeInput.broj_telefona
-    });
-    
-    // Vratite odgovor korisniku
-    res.json({ // koristi res.json() da pošalješ JSON
-        narudzba: lista,
-        prezime: narudzbeInput.prezime,
-        adresa: narudzbeInput.adresa,
-        broj_telefona: narudzbeInput.broj_telefona,
-        message: `Vaša narudžba za ${lista.join(', ')} je uspješno zaprimljena!`,
-        ukupna_cijena: ukupnaCijena.toFixed(2)
-    });
+    sve_narudzbe.push(narudzbe);
+
+    // dobivamo listu stringova koji se sastoji od naziva pizze i veličine
+    const pizze_naziv = narudzbe.map(x => `${x.pizza} (${x.velicina})`);
+
+    res.json({
+        message: `Vaša narudžba za ${pizze_naziv.join(', ')} je uspješno zaprimljena!`,
+        prezime: detaljna_narudzba.prezime,
+        adresa: detaljna_narudzba.adresa,
+        ukupna_cijena: cijena_ukupno
+     });
 });
+

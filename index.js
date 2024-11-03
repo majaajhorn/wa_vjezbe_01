@@ -5,19 +5,7 @@ const path = require("path");
 const PORT = 3000;
 
 app.use(express.json());
-app.listen(PORT, (error) => {
-    if(error) {
-        console.error(`Greška prilikom pokretanja poslužitelja: ${error.message}`);
-    } else {
-        console.log(`Server je pokrenut na http://localhost:${PORT}`);
-    }
-})
 
-/*
-app.get("/", function (req, res) {
-    res.send("Hello, world!");
-});
-*/
 app.get("/", function (req, res) {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -36,10 +24,6 @@ app.get("/users", function(req, res) {
 });
 
 // VJEŽBE 3 
-
-/*app.get('/pizze', (req, res) => {
-    res.send('Ovdje su sve dostupne pizze!');
-});*/
 
 const pizze = [
     { id: 1, naziv: 'Margherita', cijena: 6.5 },
@@ -70,22 +54,6 @@ app.get('/pizze/:id', (req, res) => {
         res.json({ message: 'Pizza s traženim ID-em ne postoji.' });
     }
 });
-
-// POST METODA
-
-/*
-app.post('/naruci', (req, res) => {
-    const narudzba = req.body;
-    const kljucevi = Object.keys(narudzba);
-
-    if (!(kljucevi.includes('pizza') && kljucevi.includes('velicina'))) {
-        res.send('Niste poslali sve potrebne podatke za narudžbu!');
-        return;
-    }
-    
-    res.send(`Vaša narudžba za ${narudzba.pizza} (${narudzba.velicina}) je uspješno zaprimljena!`);
-});
-*/
 
 // Vježba 1 i 2 - Naručivanje više pizze, Vježba 2 - Zanima nas i adresa dostave
 
@@ -133,5 +101,13 @@ app.post('/naruci1', (req, res) => {
         adresa: detaljna_narudzba.adresa,
         ukupna_cijena: cijena_ukupno
      });
+});
+
+app.listen(PORT, (error) => {
+    if(error) {
+        console.error(`Greška prilikom pokretanja poslužitelja: ${error.message}`);
+    } else {
+        console.log(`Server je pokrenut na http://localhost:${PORT}`);
+    }
 });
 
